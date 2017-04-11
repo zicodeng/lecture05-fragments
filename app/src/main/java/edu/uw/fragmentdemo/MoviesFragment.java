@@ -61,7 +61,6 @@ public class MoviesFragment extends Fragment {
         }catch(ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement OnMovieSelectedListend");
         }
-
     }
 
     @Override
