@@ -1,29 +1,54 @@
 package edu.uw.fragmentdemo;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.widget.EditText;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 
-public class MainActivity extends AppCompatActivity implements MoviesFragment.OnMovieClickListener {
+public class MainActivity extends FragmentActivity implements MoviesFragment.OnMovieClickListener, SearchFragment.OnSearchListener {
 
     private static final String TAG = "MainActivity";
 
+    private ViewPager mainViewPager;
+
+    private PagerAdapter mainPagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Instantiate a ViewPager and a PagerAdapter
+        mainViewPager = (ViewPager) findViewById(R.id.container);
+        mainPagerAdapter = new MoviePagerAdapter(getSupportFragmentManager());
+        mainViewPager.setAdapter(mainPagerAdapter);
+
+        // Create the fragment
+//        SearchFragment searchFragment = SearchFragment.newInstance();
+//
+//        // FragmentManager manages all your fragments
+//        FragmentManager fragmentManager = getSupportFragmentManager();
+//
+//        // Construct FragmentTransaction
+//        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//
+//        fragmentTransaction.replace(R.id.container, searchFragment, "SearchFragment");
+//        fragmentTransaction.commit();
     }
 
+    @Override
+    public void onMovieClick(Movie movie) {
 
-    //respond to search button clicking
-    public void handleSearchClick(View v){
-        EditText text = (EditText)findViewById(R.id.txtSearch);
-        String searchTerm = text.getText().toString();
+        DetailFragment detailFragment = DetailFragment.newInstance(movie);
+        getSupportFragmentManager().beginTransaction().replace(R.id.container, detailFragment, "DetailFragment").addToBackStack(null).commit();
+    }
 
+    @Override
+    public void onSearchSubmitted(String searchTerm) {
         // Create the fragment
         MoviesFragment moviesFragment = MoviesFragment.newInstance(searchTerm);
 
@@ -39,16 +64,41 @@ public class MainActivity extends AppCompatActivity implements MoviesFragment.On
         fragmentTransaction.replace(R.id.container, moviesFragment, "MoviesFragment");
         fragmentTransaction.commit();
 
-        // Get a specific fragment we want to manage
-//        MoviesFragment moviesFragment = (MoviesFragment) fragmentManager.findFragmentById(R.id.myFragment);
-//
-//        moviesFragment.downloadMovieData(searchTerm);
     }
 
     @Override
-    public void onMovieClick(Movie movie) {
+    public void onBackPressed() {
+        if (mainViewPager.getCurrentItem() == 0) {
+            // If the user is currently looking at the first step, allow the system to handle the
+            // Back button. This calls finish() on this activity and pops the back stack.
+            super.onBackPressed();
+        } else {
+            // Otherwise, select the previous step.
+            mainViewPager.setCurrentItem(mainViewPager.getCurrentItem() - 1);
+        }
+    }
 
-        DetailFragment detailFragment = DetailFragment.newInstance(movie);
-        getSupportFragmentManager().beginTransaction().replace(R.id.container, detailFragment, "DetailFragment").addToBackStack(null).commit();
+    private class MoviePagerAdapter extends FragmentStatePagerAdapter {
+
+
+        public MoviePagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            if(position == 0) {
+                return new SearchFragment();
+            } else if(position == 1) {
+                return new MoviesFragment();
+            } else {
+                return new DetailFragment();
+            }
+        }
+
+        @Override
+        public int getCount() {
+            return 3;
+        }
     }
 }
