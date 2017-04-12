@@ -4,6 +4,7 @@ package edu.uw.fragmentdemo;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,6 +53,8 @@ public class SearchFragment extends Fragment {
             public void onClick(View view) {
 
                 String searchTerm = txtSearch.getText().toString();
+
+                Log.v(TAG, "Search term is " + searchTerm);
 
                 // Pass search term to main activity
                 ((OnSearchListener) getActivity()).onSearchSubmitted(searchTerm);

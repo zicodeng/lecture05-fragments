@@ -5,29 +5,37 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
+
+import java.util.ArrayList;
 
 public class MainActivity extends FragmentActivity implements MoviesFragment.OnMovieClickListener, SearchFragment.OnSearchListener {
 
     private static final String TAG = "MainActivity";
 
     private ViewPager mainViewPager;
-
     private PagerAdapter mainPagerAdapter;
+    private ArrayList<Fragment> fragments;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        SearchFragment searchFragment = SearchFragment.newInstance();
+
+        fragments = new ArrayList<Fragment>();
+
+        fragments.add(searchFragment);
+
         // Instantiate a ViewPager and a PagerAdapter
         mainViewPager = (ViewPager) findViewById(R.id.container);
         mainPagerAdapter = new MoviePagerAdapter(getSupportFragmentManager());
         mainViewPager.setAdapter(mainPagerAdapter);
 
-        // Create the fragment
+//        // Create the fragment
 //        SearchFragment searchFragment = SearchFragment.newInstance();
 //
 //        // FragmentManager manages all your fragments
@@ -42,27 +50,39 @@ public class MainActivity extends FragmentActivity implements MoviesFragment.OnM
 
     @Override
     public void onMovieClick(Movie movie) {
-
         DetailFragment detailFragment = DetailFragment.newInstance(movie);
-        getSupportFragmentManager().beginTransaction().replace(R.id.container, detailFragment, "DetailFragment").addToBackStack(null).commit();
+        fragments.add(detailFragment);
+        mainPagerAdapter.notifyDataSetChanged();
+        mainViewPager.setCurrentItem(2);
+
+
+//        getSupportFragmentManager().beginTransaction().replace(R.id.container, detailFragment, "DetailFragment").addToBackStack(null).commit();
     }
 
     @Override
     public void onSearchSubmitted(String searchTerm) {
+
+        Log.v(TAG, "Query is " + searchTerm);
+
         // Create the fragment
         MoviesFragment moviesFragment = MoviesFragment.newInstance(searchTerm);
 
-        // FragmentManager manages all your fragments
-        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragments.add(moviesFragment);
 
-        // Construct FragmentTransaction
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        mainPagerAdapter.notifyDataSetChanged();
+        mainViewPager.setCurrentItem(1);
 
-        // P1: the id of a layout we want our fragment live in
-        // P2: which fragment should live inside of the layout
-        // P2: a short description of what this transaction
-        fragmentTransaction.replace(R.id.container, moviesFragment, "MoviesFragment");
-        fragmentTransaction.commit();
+//        // FragmentManager manages all your fragments
+//        FragmentManager fragmentManager = getSupportFragmentManager();
+//
+//        // Construct FragmentTransaction
+//        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//
+//        // P1: the id of a layout we want our fragment live in
+//        // P2: which fragment should live inside of the layout
+//        // P2: a short description of what this transaction
+//        fragmentTransaction.replace(R.id.container, moviesFragment, "MoviesFragment");
+//        fragmentTransaction.commit();
 
     }
 
@@ -80,25 +100,23 @@ public class MainActivity extends FragmentActivity implements MoviesFragment.OnM
 
     private class MoviePagerAdapter extends FragmentStatePagerAdapter {
 
-
         public MoviePagerAdapter(FragmentManager fm) {
             super(fm);
         }
 
         @Override
         public Fragment getItem(int position) {
-            if(position == 0) {
-                return new SearchFragment();
-            } else if(position == 1) {
-                return new MoviesFragment();
-            } else {
-                return new DetailFragment();
-            }
+            return fragments.get(position);
         }
 
         @Override
         public int getCount() {
-            return 3;
+            return fragments.size();
         }
+
+        public int getItemPosition(Object object) {
+            return POSITION_NONE;
+        }
+
     }
 }
