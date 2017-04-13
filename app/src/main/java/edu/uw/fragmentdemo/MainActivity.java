@@ -2,16 +2,16 @@ package edu.uw.fragmentdemo;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import java.util.ArrayList;
 
-public class MainActivity extends FragmentActivity implements MoviesFragment.OnMovieClickListener, SearchFragment.OnSearchListener {
+public class MainActivity extends AppCompatActivity implements MoviesFragment.OnMovieClickListener, SearchFragment.OnSearchListener {
 
     private static final String TAG = "MainActivity";
 
@@ -51,7 +51,11 @@ public class MainActivity extends FragmentActivity implements MoviesFragment.OnM
     @Override
     public void onMovieClick(Movie movie) {
         DetailFragment detailFragment = DetailFragment.newInstance(movie);
-        fragments.add(detailFragment);
+        if(fragments.size() == 2) {
+            fragments.add(detailFragment);
+        } else {
+            fragments.set(2, detailFragment);
+        }
         mainPagerAdapter.notifyDataSetChanged();
         mainViewPager.setCurrentItem(2);
 
@@ -67,7 +71,11 @@ public class MainActivity extends FragmentActivity implements MoviesFragment.OnM
         // Create the fragment
         MoviesFragment moviesFragment = MoviesFragment.newInstance(searchTerm);
 
-        fragments.add(moviesFragment);
+        if(fragments.size() == 1) {
+            fragments.add(moviesFragment);
+        } else {
+            fragments.set(1, moviesFragment);
+        }
 
         mainPagerAdapter.notifyDataSetChanged();
         mainViewPager.setCurrentItem(1);
